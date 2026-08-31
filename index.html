@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CMRP">
+<meta name="theme-color" content="#141d26">
+<title>Curso CMRP — Preparação para certificação</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#141d26;
+    --panel:#1c2833;
+    --panel-2:#233240;
+    --line:#324556;
+    --accent:#f2b705;
+    --accent-dark:#8a6800;
+    --teal:#2fb8ac;
+    --teal-dark:#0f5c54;
+    --text:#e7edf2;
+    --text-mut:#93a5b3;
+    --danger:#e2574c;
+    --danger-dark:#5c211c;
+    --radius:6px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;}
+  .wrap{max-width:640px;margin:0 auto;padding:0 0 3rem;}
+  h1,h2,h3{font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:.2px;margin:0;}
+  header{position:sticky;top:0;background:var(--bg);z-index:10;padding:1.2rem 1rem 1rem;border-bottom:1px solid var(--line);}
+  header h1{font-size:1.3rem;color:var(--text);}
+  header p{margin:.3rem 0 0;font-size:.85rem;color:var(--text-mut);}
+  .progress-track{margin-top:.8rem;height:8px;background:var(--panel-2);border-radius:4px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--accent);width:0%;transition:width .3s ease;}
+  .progress-label{font-size:.75rem;color:var(--text-mut);margin-top:.35rem;}
+  main{padding:1rem;}
+  .module{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:.8rem;background:var(--panel);overflow:hidden;}
+  .module-head{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1rem;cursor:pointer;}
+  .module-head:hover{background:var(--panel-2);}
+  .module-title{display:flex;align-items:center;gap:.6rem;}
+  .module-num{font-family:'Oswald',sans-serif;font-size:.75rem;color:var(--bg);background:var(--text-mut);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .module-num.done{background:var(--teal);}
+  .module-name{font-size:.95rem;font-weight:500;}
+  .module-weeks{font-size:.75rem;color:var(--text-mut);}
+  .module-chevron{font-size:.8rem;color:var(--text-mut);transition:transform .2s;}
+  .module-body{display:none;padding:0 1rem 1.1rem;border-top:1px solid var(--line);}
+  .module-body.open{display:block;}
+  .module-intro{font-size:.85rem;color:var(--text-mut);margin:.8rem 0 .9rem;line-height:1.5;}
+  .section-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin:1rem 0 .5rem;font-weight:500;}
+  .topic{display:flex;align-items:flex-start;gap:.55rem;padding:.4rem 0;font-size:.87rem;cursor:pointer;}
+  .topic input{margin-top:.2rem;accent-color:var(--teal);width:16px;height:16px;flex-shrink:0;}
+  .topic span{line-height:1.4;}
+  .topic.checked span{color:var(--text-mut);text-decoration:line-through;}
+  .callout{background:var(--panel-2);border-left:3px solid var(--accent);border-radius:0 4px 4px 0;padding:.7rem .8rem;margin:.7rem 0;font-size:.82rem;line-height:1.5;}
+  .callout b{color:var(--accent);}
+  .quiz{margin-top:.4rem;}
+  .q{background:var(--panel-2);border-radius:var(--radius);padding:.8rem;margin-bottom:.6rem;}
+  .q p.qtext{font-size:.87rem;margin:0 0 .55rem;font-weight:500;}
+  .opt{display:flex;align-items:flex-start;gap:.5rem;padding:.4rem .5rem;border-radius:4px;font-size:.83rem;margin-bottom:.3rem;cursor:pointer;border:1px solid transparent;}
+  .opt:hover{border-color:var(--line);}
+  .opt.correct{background:rgba(47,184,172,.15);border-color:var(--teal);}
+  .opt.wrong{background:rgba(226,87,76,.15);border-color:var(--danger);}
+  .opt input{margin-top:.15rem;}
+  .explain{font-size:.78rem;color:var(--text-mut);margin-top:.5rem;padding-top:.5rem;border-top:1px dashed var(--line);display:none;line-height:1.45;}
+  .explain.show{display:block;}
+  .module-progress-line{font-size:.75rem;color:var(--text-mut);margin-top:.9rem;}
+  footer{padding:1rem;text-align:center;font-size:.75rem;color:var(--text-mut);}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Preparação CMRP</h1>
+  <p>Plano de 20 semanas — Certified Maintenance &amp; Reliability Professional (SMRP)</p>
+  <div class="progress-track"><div class="progress-fill" id="overall-fill"></div></div>
+  <div class="progress-label" id="overall-label">0% concluído</div>
+</header>
+<main id="modules"></main>
+<footer>Progresso salvo automaticamente.</footer>
+</div>
+
+<script>
+const MODULES = [
+  {
+    id: "m0", name: "Logística e inscrição", weeks: "Semanas 1–2",
+    intro: "Antes de estudar o conteúdo técnico, organize o processo de certificação.",
+    topics: [
+      "Criar conta no portal SMRP (smrp.org)",
+      "Ler o CMRP Candidate Guide (edital oficial)",
+      "Escolher: prova presencial (Pearson VUE) ou remota com proctor",
+      "Definir data-alvo do exame (fim das 20 semanas)",
+      "Levantar taxa de inscrição (sócio SMRP sai mais barato)",
+      "Reservar 4–6h semanais fixas de estudo na agenda"
+    ],
+    callout: "<b>Formato da prova:</b> 110 questões de múltipla escolha, 2h30, sem pré-requisito formal de diploma ou experiência para se inscrever.",
+    quiz: [
+      {
+        q: "Quantas questões tem o exame CMRP e em quanto tempo?",
+        opts: ["80 questões em 1h30", "110 questões em 2h30", "150 questões em 3h", "60 questões em 1h"],
+        correct: 1,
+        explain: "O exame CMRP tem 110 questões de múltipla escolha aplicadas em 2 horas e 30 minutos via Pearson VUE."
+      },
+      {
+        q: "É necessário ter diploma de engenharia para se inscrever no exame CMRP?",
+        opts: ["Sim, obrigatoriamente engenharia mecânica", "Sim, qualquer diploma superior", "Não, não há pré-requisito formal de educação ou experiência", "Só se não for sócio da SMRP"],
+        correct: 2,
+        explain: "O CMRP está aberto a qualquer profissional de manutenção e confiabilidade, sem exigência formal de diploma ou anos de experiência."
+      }
+    ]
+  },
+  {
+    id: "m1", name: "Business & Management", weeks: "Semanas 3–6",
+    intro: "Visão de negócio aplicada à manutenção: como decisões técnicas se conectam a resultado financeiro e estratégico.",
+    topics: [
+      "Entendimento do ambiente de negócio (missão, stakeholders, mercado)",
+      "Indicadores financeiros: ROI, NPV, payback, custo do ciclo de vida (LCC)",
+      "Elaboração e controle de orçamento de manutenção",
+      "Gestão de risco (matriz de risco, análise de impacto)",
+      "Requisitos e expectativas do cliente interno/externo",
+      "Gestão da mudança organizacional",
+      "Fundamentos de melhoria contínua (Lean, Six Sigma, PDCA)",
+      "Tomada de decisão baseada em dados"
+    ],
+    callout: "<b>Fórmula chave:</b> Custo do Ciclo de Vida (LCC) = custo de aquisição + custo de operação + custo de manutenção + custo de descarte, ao longo da vida útil do ativo.",
+    quiz: [
+      {
+        q: "O que mede o indicador ROI (Return on Investment)?",
+        opts: ["Tempo até recuperar o investimento", "Retorno financeiro gerado em relação ao capital investido", "Custo total de propriedade de um ativo", "Taxa de falhas por ano"],
+        correct: 1,
+        explain: "ROI mede o retorno financeiro obtido em relação ao valor investido, normalmente expresso em percentual."
+      },
+      {
+        q: "Qual ferramenta é mais associada à melhoria contínua de processos?",
+        opts: ["FMEA", "PDCA (Plan-Do-Check-Act)", "RCM", "Curva de Weibull"],
+        correct: 1,
+        explain: "PDCA é o ciclo clássico de melhoria contínua: planejar, executar, verificar e agir."
+      },
+      {
+        q: "Custo do Ciclo de Vida (LCC) inclui:",
+        opts: ["Apenas o preço de compra do ativo", "Aquisição, operação, manutenção e descarte", "Somente custos de manutenção corretiva", "Apenas depreciação contábil"],
+        correct: 1,
+        explain: "LCC soma todos os custos ao longo da vida do ativo: aquisição, operação, manutenção e descarte."
+      }
+    ]
+  },
+  {
+    id: "m2", name: "Manufacturing Process Reliability", weeks: "Semanas 7–10",
+    intro: "Confiabilidade do processo produtivo como um todo, não só do equipamento isolado.",
+    topics: [
+      "Ferramentas de melhoria de processo (Six Sigma, DMAIC)",
+      "Gestão de materiais e sobressalentes (MRO)",
+      "Suporte da manutenção aos objetivos de produção",
+      "Análise de causa raiz (RCA) aplicada a processo",
+      "FMEA de processo (Process FMEA)",
+      "Indicadores de processo: OEE (Overall Equipment Effectiveness)",
+      "Integração manutenção-operação (colaboração cross-funcional)"
+    ],
+    callout: "<b>Fórmula chave:</b> OEE = Disponibilidade × Performance × Qualidade. Um OEE de referência mundial gira em torno de 85%.",
+    quiz: [
+      {
+        q: "OEE é calculado multiplicando quais três fatores?",
+        opts: ["Custo, tempo, qualidade", "Disponibilidade, performance e qualidade", "MTBF, MTTR e backlog", "Produção, estoque e demanda"],
+        correct: 1,
+        explain: "OEE = Disponibilidade × Performance × Qualidade — os três pilares da eficácia global do equipamento."
+      },
+      {
+        q: "RCA (Root Cause Analysis) tem como objetivo principal:",
+        opts: ["Calcular o custo de uma falha", "Identificar e eliminar a causa raiz de um problema recorrente", "Programar a manutenção preventiva", "Medir o tempo de parada"],
+        correct: 1,
+        explain: "RCA busca a causa raiz de uma falha, não apenas seu sintoma, para evitar recorrência."
+      },
+      {
+        q: "MRO significa:",
+        opts: ["Maintenance, Repair and Operations (materiais e sobressalentes)", "Manufacturing Resource Optimization", "Machine Reliability Output", "Monthly Reporting Overview"],
+        correct: 0,
+        explain: "MRO refere-se a materiais, sobressalentes e insumos usados em manutenção, reparo e operações."
+      }
+    ]
+  },
+  {
+    id: "m3", name: "Equipment Reliability", weeks: "Semanas 11–14",
+    intro: "O pilar mais técnico: estratégias de manutenção e engenharia de confiabilidade dos ativos.",
+    topics: [
+      "Princípios de engenharia de confiabilidade",
+      "Manutenção preventiva (PM) vs preditiva (PdM)",
+      "Manutenção de precisão (alinhamento, balanceamento, lubrificação)",
+      "Gestão do ciclo de vida do ativo",
+      "RCM (Reliability Centered Maintenance)",
+      "FMEA de equipamento e análise de modos de falha",
+      "Curva da banheira e distribuição de Weibull",
+      "Indicadores: MTBF, MTTR, disponibilidade"
+    ],
+    callout: "<b>Fórmulas chave:</b> MTBF = tempo total de operação ÷ número de falhas. MTTR = tempo total de reparo ÷ número de falhas. Disponibilidade = MTBF ÷ (MTBF + MTTR).",
+    quiz: [
+      {
+        q: "MTBF (Mean Time Between Failures) é calculado como:",
+        opts: ["Tempo de reparo ÷ número de técnicos", "Tempo total de operação ÷ número de falhas", "Número de falhas ÷ tempo de parada", "Custo total ÷ número de ativos"],
+        correct: 1,
+        explain: "MTBF = tempo total de operação dividido pelo número de falhas ocorridas nesse período."
+      },
+      {
+        q: "RCM (Reliability Centered Maintenance) prioriza estratégias de manutenção com base em:",
+        opts: ["Idade do equipamento apenas", "Consequência e criticidade da falha para o negócio", "Preço de compra do ativo", "Disponibilidade de técnicos"],
+        correct: 1,
+        explain: "RCM define a estratégia de manutenção (preventiva, preditiva, corretiva) a partir da criticidade e consequência de cada modo de falha."
+      },
+      {
+        q: "Na curva da banheira, a fase de 'mortalidade infantil' representa:",
+        opts: ["Falhas aleatórias na vida útil normal", "Falhas por desgaste no fim de vida", "Falhas precoces por defeito de fabricação ou instalação", "Ausência total de falhas"],
+        correct: 2,
+        explain: "A fase inicial da curva da banheira mostra taxa de falha decrescente, tipicamente ligada a defeitos de fabricação ou instalação."
+      },
+      {
+        q: "Disponibilidade de um ativo é calculada por:",
+        opts: ["MTBF ÷ (MTBF + MTTR)", "MTTR ÷ MTBF", "Número de falhas × MTTR", "Tempo de produção ÷ tempo de venda"],
+        correct: 0,
+        explain: "Disponibilidade = MTBF / (MTBF + MTTR), representando a fração do tempo em que o ativo está operacional."
+      }
+    ]
+  },
+  {
+    id: "m4", name: "Organization & Leadership", weeks: "Semanas 15–17",
+    intro: "Estrutura organizacional, liderança de equipes e cultura de manutenção.",
+    topics: [
+      "Estruturas organizacionais de manutenção (centralizada, descentralizada, híbrida)",
+      "Treinamento e desenvolvimento de equipe técnica",
+      "Formação e gestão de times multidisciplinares",
+      "Comunicação eficaz entre manutenção, operação e diretoria",
+      "Gestão de desempenho de colaboradores",
+      "Cultura de melhoria contínua e engajamento"
+    ],
+    callout: "<b>Ponto de atenção:</b> como supervisor com MBA em gestão de projetos, este pilar tende a ser seu ponto forte — foque em revisar vocabulário específico do BoK da SMRP.",
+    quiz: [
+      {
+        q: "Uma estrutura de manutenção 'centralizada' se caracteriza por:",
+        opts: ["Equipes de manutenção alocadas em cada área de produção, sem gestão única", "Uma única equipe de manutenção atendendo toda a planta, com gestão unificada", "Ausência de qualquer estrutura formal", "Terceirização total da manutenção"],
+        correct: 1,
+        explain: "Na estrutura centralizada, uma equipe única atende toda a planta sob uma gestão unificada, facilitando padronização."
+      },
+      {
+        q: "Comunicação eficaz entre manutenção e operação é importante principalmente para:",
+        opts: ["Reduzir o número de reuniões", "Alinhar prioridades e evitar conflitos na programação de paradas", "Eliminar a necessidade de KPIs", "Diminuir o orçamento de treinamento"],
+        correct: 1,
+        explain: "Alinhar manutenção e operação evita conflitos de agenda e garante que paradas planejadas não impactem a produção de forma inesperada."
+      }
+    ]
+  },
+  {
+    id: "m5", name: "Work Management", weeks: "Semanas 18–19",
+    intro: "O fluxo operacional do dia a dia: como o trabalho de manutenção é identificado, planejado e executado.",
+    topics: [
+      "Identificação e priorização do trabalho",
+      "Planejamento de manutenção (planning)",
+      "Programação de manutenção (scheduling)",
+      "Execução e fechamento de ordens de serviço",
+      "Sistemas CMMS (Computerized Maintenance Management System)",
+      "Gestão de backlog de manutenção",
+      "Gestão de estoque de sobressalentes",
+      "KPIs de work management: cumprimento de programação, backlog, produtividade"
+    ],
+    callout: "<b>Diferença chave:</b> planning define <b>o que</b> e <b>como</b> fazer (recursos, procedimento); scheduling define <b>quando</b> fazer (data e hora).",
+    quiz: [
+      {
+        q: "Qual a principal diferença entre 'planning' e 'scheduling' em manutenção?",
+        opts: ["São sinônimos", "Planning define o que/como fazer; scheduling define quando fazer", "Planning é feito pela operação; scheduling pela manutenção", "Scheduling só existe em manutenção corretiva"],
+        correct: 1,
+        explain: "Planning trata dos recursos, materiais e procedimento (o quê e como); scheduling define a data e hora de execução (quando)."
+      },
+      {
+        q: "CMMS é a sigla para:",
+        opts: ["Continuous Maintenance Management System", "Computerized Maintenance Management System", "Central Manufacturing Monitoring Software", "Corrective Maintenance Master Schedule"],
+        correct: 1,
+        explain: "CMMS é o sistema informatizado de gestão da manutenção, usado para controlar ordens de serviço, ativos e histórico."
+      },
+      {
+        q: "Backlog de manutenção representa:",
+        opts: ["O número de técnicos disponíveis", "O volume de trabalho pendente de execução", "O custo total do orçamento anual", "A quantidade de sobressalentes em estoque"],
+        correct: 1,
+        explain: "Backlog é o volume de trabalho identificado e ainda não executado — um indicador chave de saúde do work management."
+      }
+    ]
+  },
+  {
+    id: "m6", name: "Revisão final e simulado", weeks: "Semana 20",
+    intro: "Consolidação dos 5 pilares antes da prova.",
+    topics: [
+      "Refazer todos os quizzes deste curso sem consultar",
+      "Revisar fórmulas: MTBF, MTTR, disponibilidade, OEE, LCC",
+      "Fazer simulado oficial da SMRP (Self-Assessment Exam), se disponível",
+      "Revisar pontos fracos identificados nos quizzes",
+      "Confirmar data, local e documentos para o exame"
+    ],
+    callout: "<b>Distribuição da prova:</b> os 5 pilares têm peso diferente no exame — Work Management e Equipment Reliability costumam concentrar a maior parte das questões.",
+    quiz: [
+      {
+        q: "Antes do exame oficial, o que a SMRP recomenda para autoavaliação?",
+        opts: ["Nenhuma preparação formal é necessária", "Fazer o Self-Assessment Exam (SAE) oficial", "Apenas ler o BoK uma vez", "Contratar um mentor obrigatoriamente"],
+        correct: 1,
+        explain: "A SMRP oferece um Self-Assessment Exam (SAE) que simula o formato e o nível da prova oficial."
+      }
+    ]
+  }
+];
+
+let state = { checked: {}, quiz: {} };
+
+function loadState(){
+  try{
+    const r = localStorage.getItem('cmrp-progress');
+    if(r){ state = JSON.parse(r); }
+  }catch(e){ }
+}
+function saveState(){
+  try{ localStorage.setItem('cmrp-progress', JSON.stringify(state)); }
+  catch(e){ }
+}
+
+function totalTopics(){
+  return MODULES.reduce((sum,m)=>sum+m.topics.length,0);
+}
+function checkedCount(){
+  return Object.values(state.checked).filter(Boolean).length;
+}
+function moduleCheckedCount(m){
+  return m.topics.filter((_,i)=>state.checked[m.id+'-'+i]).length;
+}
+
+function updateOverall(){
+  const total = totalTopics();
+  const done = checkedCount();
+  const pct = total ? Math.round((done/total)*100) : 0;
+  document.getElementById('overall-fill').style.width = pct+'%';
+  document.getElementById('overall-label').textContent = pct+'% concluído ('+done+'/'+total+' tópicos)';
+}
+
+function render(){
+  const root = document.getElementById('modules');
+  root.innerHTML = '';
+  MODULES.forEach((m, idx)=>{
+    const done = moduleCheckedCount(m);
+    const isComplete = done === m.topics.length;
+    const div = document.createElement('div');
+    div.className = 'module';
+    div.innerHTML = `
+      <div class="module-head" data-id="${m.id}">
+        <div class="module-title">
+          <div class="module-num ${isComplete ? 'done' : ''}">${idx+1}</div>
+          <div>
+            <div class="module-name">${m.name}</div>
+            <div class="module-weeks">${m.weeks}</div>
+          </div>
+        </div>
+        <div class="module-chevron" id="chev-${m.id}"><i>&#9660;</i></div>
+      </div>
+      <div class="module-body" id="body-${m.id}">
+        <p class="module-intro">${m.intro}</p>
+        <div class="section-label">Tópicos de estudo</div>
+        <div id="topics-${m.id}"></div>
+        <div class="callout">${m.callout}</div>
+        <div class="section-label">Quiz de fixação</div>
+        <div class="quiz" id="quiz-${m.id}"></div>
+        <div class="module-progress-line">${done}/${m.topics.length} tópicos marcados</div>
+      </div>
+    `;
+    root.appendChild(div);
+
+    const topicsWrap = div.querySelector('#topics-'+m.id);
+    m.topics.forEach((t,i)=>{
+      const key = m.id+'-'+i;
+      const checked = !!state.checked[key];
+      const row = document.createElement('label');
+      row.className = 'topic'+(checked?' checked':'');
+      row.innerHTML = `<input type="checkbox" ${checked?'checked':''}><span>${t}</span>`;
+      row.querySelector('input').addEventListener('change', (e)=>{
+        state.checked[key] = e.target.checked;
+        row.classList.toggle('checked', e.target.checked);
+        updateOverall();
+        saveState();
+        render();
+      });
+      topicsWrap.appendChild(row);
+    });
+
+    const quizWrap = div.querySelector('#quiz-'+m.id);
+    m.quiz.forEach((qq,qi)=>{
+      const qkey = m.id+'-q'+qi;
+      const answered = state.quiz[qkey];
+      const qdiv = document.createElement('div');
+      qdiv.className = 'q';
+      let optsHtml = '';
+      qq.opts.forEach((opt,oi)=>{
+        let cls = 'opt';
+        if(answered!==undefined){
+          if(oi===qq.correct) cls += ' correct';
+          else if(oi===answered) cls += ' wrong';
+        }
+        optsHtml += `<label class="${cls}" data-oi="${oi}"><input type="radio" name="${qkey}" ${answered===oi?'checked':''} ${answered!==undefined?'disabled':''}><span>${opt}</span></label>`;
+      });
+      qdiv.innerHTML = `<p class="qtext">${qq.q}</p>${optsHtml}<div class="explain ${answered!==undefined?'show':''}">${qq.explain}</div>`;
+      if(answered===undefined){
+        qdiv.querySelectorAll('.opt').forEach(optEl=>{
+          optEl.addEventListener('click', ()=>{
+            const oi = parseInt(optEl.getAttribute('data-oi'));
+            state.quiz[qkey] = oi;
+            saveState();
+            render();
+          });
+        });
+      }
+      quizWrap.appendChild(qdiv);
+    });
+
+    const head = div.querySelector('.module-head');
+    const body = div.querySelector('#body-'+m.id);
+    const chev = div.querySelector('#chev-'+m.id);
+    if(state.openModule === m.id){
+      body.classList.add('open');
+      chev.style.transform = 'rotate(180deg)';
+    }
+    head.addEventListener('click', ()=>{
+      const isOpen = body.classList.contains('open');
+      document.querySelectorAll('.module-body').forEach(b=>b.classList.remove('open'));
+      document.querySelectorAll('.module-chevron').forEach(c=>c.style.transform='rotate(0deg)');
+      if(!isOpen){
+        body.classList.add('open');
+        chev.style.transform = 'rotate(180deg)';
+        state.openModule = m.id;
+      } else {
+        state.openModule = null;
+      }
+      saveState();
+    });
+  });
+  updateOverall();
+}
+
+loadState();
+render();
+</script>
+</body>
+</html>
